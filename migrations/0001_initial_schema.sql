@@ -1,0 +1,11 @@
+-- 会員テーブル
+CREATE TABLE IF NOT EXISTS members (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  member_no TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- インデックスの作成
+CREATE INDEX IF NOT EXISTS idx_members_member_no ON members(member_no);
