@@ -10,6 +10,7 @@
   - 会員削除
 
 ## URL
+- **GitHub**: https://github.com/bangalore0907-lab/kaiin20251210
 - **開発環境**: https://3000-ih9g3yocz0c5uui3yq4um-de59bda9.sandbox.novita.ai
 - **API エンドポイント**:
   - `GET /api/members` - 会員一覧取得
