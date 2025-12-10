@@ -1,13 +1,20 @@
 import pg from 'pg'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const { Client } = pg
 
+// 環境変数の確認
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL is not set!')
+  process.exit(1)
+}
+
+console.log('🔍 DATABASE_URL exists:', !!process.env.DATABASE_URL)
+
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  ssl: {
+    rejectUnauthorized: false
+  }
 })
 
 async function seed() {

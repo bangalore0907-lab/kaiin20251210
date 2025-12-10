@@ -120,8 +120,19 @@ NODE_ENV=development
 
 ### Render設定の確認
 - `render.yaml`にサービス設定が記述されています
-- データベース接続は環境変数`DATABASE_URL`で自動設定されます
+- データベース接続は環境変数`DATABASE_URL`で設定します
 - 無料プランで動作します
+
+### 重要: DATABASE_URLの設定
+Renderダッシュボードで以下を確認してください：
+1. Environment タブで `DATABASE_URL` が設定されているか確認
+2. 値の形式: `postgresql://user:password@host/database`
+3. SSL接続が有効になっているか確認（本番環境では必須）
+
+**DATABASE_URLの設定例:**
+```
+postgresql://test_db_ykb1_user:password@dpg-xxxxx-a/test_db_ykb1
+```
 
 ## プロジェクト構成
 ```
@@ -179,12 +190,40 @@ npm run db:seed
 
 ## トラブルシューティング
 
-### データベース接続エラー
-- `DATABASE_URL`が正しく設定されているか確認
-- PostgreSQLサーバーが起動しているか確認
-- Renderの場合、データベースが正常に作成されているか確認
+### データベース接続エラー（ECONNREFUSED）
+このエラーが発生する場合、以下を確認してください：
 
-### ポート競合
+1. **環境変数の確認**
+   - Renderダッシュボード → Environment タブ
+   - `DATABASE_URL` が正しく設定されているか
+   - 形式: `postgresql://user:password@host/database`
+
+2. **Renderログの確認**
+   - デプロイログで `🔍 DATABASE_URL exists: true` が表示されているか
+   - `✅ PostgreSQL connected successfully` が表示されているか
+
+3. **データベースの確認**
+   - Renderダッシュボードでデータベースが正常に動作しているか
+   - データベースのStatusが "Available" になっているか
+
+4. **SSL設定**
+   - PostgreSQL接続にはSSLが必須です
+   - `ssl: { rejectUnauthorized: false }` が設定されています
+
+5. **再デプロイ**
+   ```bash
+   # 環境変数を変更した後は必ず再デプロイ
+   git push origin main
+   ```
+
+6. **初回マイグレーション**
+   ```bash
+   # Renderのシェルから実行
+   npm run db:migrate
+   npm run db:seed
+   ```
+
+### ポート競合（ローカル開発）
 ```bash
 # ポート3000をクリーンアップ
 npm run clean-port

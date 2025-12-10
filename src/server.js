@@ -3,9 +3,6 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import pool from './db.js'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const app = new Hono()
 
