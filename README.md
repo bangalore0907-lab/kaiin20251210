@@ -11,23 +11,24 @@
 
 ## URL
 - **GitHub**: https://github.com/bangalore0907-lab/kaiin20251210
-- **開発環境**: https://3000-ih9g3yocz0c5uui3yq4um-de59bda9.sandbox.novita.ai
-- **API エンドポイント**:
-  - `GET /api/members` - 会員一覧取得
-  - `GET /api/members/:id` - 会員詳細取得
-  - `POST /api/members` - 会員新規作成
-  - `PUT /api/members/:id` - 会員情報更新
-  - `DELETE /api/members/:id` - 会員削除
+- **デプロイ先**: Render (PostgreSQL)
+
+## API エンドポイント
+- `GET /api/members` - 会員一覧取得
+- `GET /api/members/:id` - 会員詳細取得
+- `POST /api/members` - 会員新規作成
+- `PUT /api/members/:id` - 会員情報更新
+- `DELETE /api/members/:id` - 会員削除
 
 ## データ構造
 - **テーブル**: members
   - `id` - 主キー（自動採番）
-  - `member_no` - 会員No（ユニーク）
-  - `name` - 名前
-  - `created_at` - 作成日時
-  - `updated_at` - 更新日時
+  - `member_no` - 会員No（ユニーク）VARCHAR(255)
+  - `name` - 名前 VARCHAR(255)
+  - `created_at` - 作成日時 TIMESTAMP
+  - `updated_at` - 更新日時 TIMESTAMP
 
-- **ストレージサービス**: Cloudflare D1 (SQLite)
+- **データベース**: PostgreSQL (Render)
 
 ## 使用方法
 
@@ -54,54 +55,108 @@
 3. 会員が削除され、一覧が更新されます
 
 ## 技術スタック
-- **バックエンド**: Hono (Cloudflare Workers)
+- **バックエンド**: Hono + Node.js
 - **フロントエンド**: Vanilla JavaScript
-- **データベース**: Cloudflare D1 (SQLite)
+- **データベース**: PostgreSQL
 - **スタイル**: カスタムCSS
-- **デプロイ**: Cloudflare Pages
+- **デプロイ**: Render
 
 ## 開発環境セットアップ
 
 ### 必要な環境
 - Node.js 18以上
 - npm
+- PostgreSQL（本番環境ではRenderが提供）
 
 ### インストールと起動
 ```bash
 # 依存関係のインストール
 npm install
 
+# 環境変数の設定
+cp .env.example .env
+# .envファイルを編集してDATABASE_URLを設定
+
 # データベースマイグレーション
-npm run db:migrate:local
+npm run db:migrate
 
 # テストデータの投入
 npm run db:seed
 
-# ビルド
-npm run build
+# 開発サーバー起動
+npm run dev
 
-# PM2で開発サーバー起動
-pm2 start ecosystem.config.cjs
-
-# または直接起動
-npm run dev:sandbox
+# または本番モード
+npm start
 ```
 
-### データベース操作
+### 環境変数
+`.env`ファイルに以下を設定：
+```
+DATABASE_URL=postgresql://username:password@localhost:5432/webapp
+PORT=3000
+NODE_ENV=development
+```
+
+## Renderへのデプロイ
+
+### 前提条件
+1. Renderアカウントの作成
+2. GitHubリポジトリとの連携
+
+### デプロイ手順
+1. Renderダッシュボードで「New +」→「Blueprint」を選択
+2. GitHubリポジトリ（kaiin20251210）を接続
+3. `render.yaml`が自動検出されます
+4. 以下が自動作成されます：
+   - Web Service: webapp
+   - PostgreSQL Database: webapp-db
+5. デプロイ完了後、自動的にマイグレーションを実行：
+   ```bash
+   # Renderのシェルから実行
+   npm run db:migrate
+   npm run db:seed
+   ```
+
+### Render設定の確認
+- `render.yaml`にサービス設定が記述されています
+- データベース接続は環境変数`DATABASE_URL`で自動設定されます
+- 無料プランで動作します
+
+## プロジェクト構成
+```
+webapp/
+├── src/
+│   ├── server.js       # メインサーバーファイル（Hono + Node.js）
+│   └── db.js           # PostgreSQL接続設定
+├── scripts/
+│   ├── migrate.js      # データベースマイグレーション
+│   └── seed.js         # テストデータ投入
+├── public/
+│   └── static/
+│       ├── style.css   # スタイルシート
+│       ├── app.js      # 一覧画面のJavaScript
+│       ├── new.js      # 新規登録画面のJavaScript
+│       └── edit.js     # 修正画面のJavaScript
+├── render.yaml         # Renderデプロイ設定
+├── .env.example        # 環境変数テンプレート
+├── package.json        # 依存関係とスクリプト
+└── README.md           # このファイル
+```
+
+## データベース操作
 ```bash
-# マイグレーション適用（ローカル）
-npm run db:migrate:local
+# マイグレーション実行
+npm run db:migrate
 
 # テストデータ投入
 npm run db:seed
-
-# データベースリセット
-npm run db:reset
 ```
 
 ## デプロイ状況
-- **プラットフォーム**: Cloudflare Pages（ローカル開発中）
-- **ステータス**: ✅ 開発環境で動作中
+- **プラットフォーム**: Render
+- **データベース**: PostgreSQL (Render提供)
+- **ステータス**: 準備完了（デプロイ待ち）
 - **最終更新**: 2025-12-10
 
 ## 完了済み機能
@@ -109,8 +164,10 @@ npm run db:reset
 - ✅ 会員新規登録機能
 - ✅ 会員情報修正機能
 - ✅ 会員削除機能
-- ✅ D1データベース連携
+- ✅ PostgreSQL対応
 - ✅ RESTful API実装
+- ✅ Render対応（render.yaml）
+- ✅ データベースマイグレーション・シード機能
 
 ## 今後の拡張案
 - ログイン機能の追加
@@ -119,3 +176,21 @@ npm run db:reset
 - ページネーション
 - CSVエクスポート機能
 - 会員統計ダッシュボード
+
+## トラブルシューティング
+
+### データベース接続エラー
+- `DATABASE_URL`が正しく設定されているか確認
+- PostgreSQLサーバーが起動しているか確認
+- Renderの場合、データベースが正常に作成されているか確認
+
+### ポート競合
+```bash
+# ポート3000をクリーンアップ
+npm run clean-port
+```
+
+### マイグレーションエラー
+- データベース接続を確認
+- `scripts/migrate.js`のSQL文法を確認
+- PostgreSQLのバージョン互換性を確認
